@@ -26,7 +26,7 @@ def main():
     extractAsk = input("Run extractor? (YES/NO) ")
     defaultAsk = input("Use default paths to save? \nNote: if NO, each experiment will need a specific path, and process will be stopped until path is chosen! (YES/NO) ")
     if defaultAsk == 'yes' or defaultAsk == 'Yes' or defaultAsk == 'YES':
-        print("\nDefault path chosen, see outputs in C:\Tracking\Cell migration data\SegmentationAgain\n")
+        print("\nDefault path chosen, see outputs in C:\CellInsights\n")
 
     sequenceOffset = {}
     zeroOffset = input("Use zero as offset for all experiments? (YES/NO) ")
@@ -53,7 +53,7 @@ def main():
             saveFolder = filedialog.askdirectory(title='Choose a folder to save the Image Sequence')
         if not saveFolder:
             print('Image Sequence save folder was not chosen and default path is selected')
-            saveFolder = r'C:\Tracking\Cell migration data\SegmentationAgain\Data'
+            saveFolder = r'C:\CellInsights\Data'
         if experimentName not in saveFolder:
             saveFolderPNG = os.path.join(saveFolder, experimentName, 'PNG')
             saveFolder = os.path.join(saveFolder, experimentName, 'TIF')
@@ -66,7 +66,7 @@ def main():
             resultFolder = filedialog.askdirectory(title='Choose a folder to save the Segmentation results')
         if not resultFolder:
             print('Segmentation results save folder was not chosen and default path is selected')
-            resultFolder = r'C:\Tracking\Cell migration data\SegmentationAgain\Segmentation'
+            resultFolder = r'C:\CellInsights\Segmentation'
         if experimentName not in resultFolder:
             resultFolder = os.path.join(resultFolder, experimentName)
             os.makedirs(resultFolder, exist_ok=True)
@@ -77,7 +77,7 @@ def main():
             trackingFolder = filedialog.askdirectory(title='Choose a folder to save the Tracking results')
         if not trackingFolder:
             print('Tracking results save folder was not chosen and default path is selected')
-            trackingFolder = r'C:\Tracking\Cell migration data\SegmentationAgain\Tracking'
+            trackingFolder = r'C:\CellInsights\Tracking'
         if experimentName not in trackingFolder:
             trackingFolder = os.path.join(trackingFolder, experimentName)
             os.makedirs(trackingFolder, exist_ok=True)

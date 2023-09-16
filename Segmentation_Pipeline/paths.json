@@ -1,0 +1,9 @@
+{
+  "cell_types":
+[
+    "cell"
+],
+  "path_ctc_metric": "EvaluationSoftware/",
+  "path_data": "data/",
+  "path_results": "results/"
+}

@@ -38,7 +38,7 @@ class SegmentArgs():
         self.fuse_z_seeds = False
 
 
-def main(th_seed, th_cell, apply_clahe, savePath, resultPath, artifact_correction=False, batch_size=1, cuda=True, multi_gpu=False):
+def main(th_seed, th_cell, apply_clahe, savePath, resultPath, model_type='Incell', artifact_correction=False, batch_size=1, cuda=True, multi_gpu=False):
 
     random.seed()
     np.random.seed()
@@ -49,11 +49,11 @@ def main(th_seed, th_cell, apply_clahe, savePath, resultPath, artifact_correctio
     paths = {
               "cell_types":
             [
-                "PhC-C2DL-PSC"
+                "cell"
             ],
-              "path_ctc_metric": "C:/Users/avivs/PycharmProjects/env/TAU/Research/New-Segmentation/EvaluationSoftware/",
-              "path_data": "C:/Users/avivs/PycharmProjects/env/TAU/Research/New-Segmentation/cell_tracking_challenge/",
-              "path_results": "C:/Users/avivs/PycharmProjects/env/TAU/Research/New-Segmentation/kit-sch-ge_2021_segmentation/"
+              "path_ctc_metric": "EvaluationSoftware/",
+              "path_data": "data/",
+              "path_results": "results/"
             }
 
     # Paths
@@ -62,7 +62,7 @@ def main(th_seed, th_cell, apply_clahe, savePath, resultPath, artifact_correctio
     if path_results == '':
         path_results = path_datasets
     path_models = path_results / 'segmentation_models'
-    path_best_models = path_datasets / 'kit-sch-ge_2021' / 'SW'
+    path_best_models = path_datasets / 'Models' / f'Model_{model_type}'
     path_train_data = path_results / 'training_sets'
     path_ctc_metric = Path(paths['path_ctc_metric'])
     if args.cell_type == 'all':
@@ -90,9 +90,9 @@ def main(th_seed, th_cell, apply_clahe, savePath, resultPath, artifact_correctio
     for cell_type in cell_types:
 
         if "all" in args.mode:
-            model = (path_best_models / "{}_model.pth".format(args.mode))
+            model = (path_best_models / f"{model_type}_model.pth")
         else:
-            model = (path_best_models / "{}_{}_model.pth".format(cell_type, args.mode))
+            model = (path_best_models / f"{model_type}_model.pth")
 
 
         path_seg_results = path_datasets / 'challenge_datasets' / cell_type / 'KIT-Sch-GE_2021' / args.mode\

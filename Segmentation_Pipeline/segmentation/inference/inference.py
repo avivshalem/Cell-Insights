@@ -116,11 +116,11 @@ def inference_2d_ctc(model, data_path, result_path, device, batchsize, args, num
 
                 prediction_instance = foi_correction(mask=prediction_instance, cell_type=args.cell_type)
 
-                tiff.imsave(str(result_path / ('mask' + file_id)), prediction_instance, compress=1)
+                tiff.imwrite(str(result_path / ('mask' + file_id)), prediction_instance)
                 if save_raw_pred:
-                    tiff.imsave(str(result_path / ('cell' + file_id)), prediction_cell_batch[h, ..., 0].astype(np.float32), compress=1)
-                    tiff.imsave(str(result_path / ('raw_border' + file_id)), prediction_border_batch[h, ..., 0].astype(np.float32), compress=1)
-                    tiff.imsave(str(result_path / ('border' + file_id)), border.astype(np.float32), compress=1)
+                    tiff.imwrite(str(result_path / ('cell' + file_id)), prediction_cell_batch[h, ..., 0].astype(np.float32))
+                    tiff.imwrite(str(result_path / ('raw_border' + file_id)), prediction_border_batch[h, ..., 0].astype(np.float32))
+                    tiff.imwrite(str(result_path / ('border' + file_id)), border.astype(np.float32))
 
     if args.artifact_correction:
         # Artifact correction based on the assumption that the cells are dense and artifacts far away
@@ -141,7 +141,7 @@ def inference_2d_ctc(model, data_path, result_path, device, batchsize, args, num
         for prediction_instance_id in prediction_instance_ids:
             prediction_instance = tiff.imread(str(prediction_instance_id))
             prediction_instance = prediction_instance * roi
-            tiff.imsave(str(prediction_instance_id), prediction_instance.astype(np.uint16), compress=1)
+            tiff.imwrite(str(prediction_instance_id), prediction_instance.astype(np.uint16))
 
     # Clear memory
     del net
@@ -270,12 +270,12 @@ def inference_3d_ctc(model, data_path, result_path, device, batchsize, args, num
 
                 prediction_instance = foi_correction(mask=prediction_instance, cell_type=args.cell_type)
 
-                tiff.imsave(str(result_path / ('mask' + file_id)), prediction_instance, compress=1)
+                tiff.imwrite(str(result_path / ('mask' + file_id)), prediction_instance)
 
                 if save_raw_pred:
-                    tiff.imsave(str(result_path / ('cell' + file_id)), prediction_cell_batch[h].astype(np.float32), compress=1)
-                    tiff.imsave(str(result_path / ('raw_border' + file_id)), prediction_border_batch[h].astype(np.float32), compress=1)
-                    tiff.imsave(str(result_path / ('border' + file_id)), border.astype(np.float32), compress=1)
+                    tiff.imwrite(str(result_path / ('cell' + file_id)), prediction_cell_batch[h].astype(np.float32))
+                    tiff.imwrite(str(result_path / ('raw_border' + file_id)), prediction_border_batch[h].astype(np.float32))
+                    tiff.imwrite(str(result_path / ('border' + file_id)), border.astype(np.float32))
 
     # Clear memory
     del net

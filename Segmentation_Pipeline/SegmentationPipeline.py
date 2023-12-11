@@ -49,11 +49,11 @@ def main(th_seed, th_cell, apply_clahe, savePath, resultPath, model_type='Incell
     paths = {
               "cell_types":
             [
-                "cell"
+                "cell2D"
             ],
-              "path_ctc_metric": "EvaluationSoftware/",
-              "path_data": "data/",
-              "path_results": "results/"
+              "path_ctc_metric": r"C:\Users\avivs\PycharmProjects\CellInsights\Segmentation_Pipeline/EvaluationSoftware/",
+              "path_data": r"C:\Users\avivs\PycharmProjects\CellInsights\Segmentation_Pipeline/data/",
+              "path_results": r"C:\Users\avivs\PycharmProjects\CellInsights\Segmentation_Pipeline/results/"
             }
 
     # Paths

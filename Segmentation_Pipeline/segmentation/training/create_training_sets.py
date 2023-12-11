@@ -243,11 +243,11 @@ def generate_data_st(img, mask, search_radius, max_mal, crop_size, cell_type, mo
                 if cell.area <= 0.1 * min_area and scale == 1:  # needed since tra_gt seeds are smaller
                     n_part += 1
 
-            tiff.imsave(str(path_train_sets / "{}_{}".format(cell_type, mode) / 'A' / ('img_' + crop_name)), img_crop)
-            tiff.imsave(str(path_train_sets / "{}_{}".format(cell_type, mode) / 'A' / ('mask_' + crop_name)), mask_crop)
-            tiff.imsave(str(path_train_sets / "{}_{}".format(cell_type, mode) / 'A' / ('dist_cell_' + crop_name)),
+            tiff.imwrite(str(path_train_sets / "{}_{}".format(cell_type, mode) / 'A' / ('img_' + crop_name)), img_crop)
+            tiff.imwrite(str(path_train_sets / "{}_{}".format(cell_type, mode) / 'A' / ('mask_' + crop_name)), mask_crop)
+            tiff.imwrite(str(path_train_sets / "{}_{}".format(cell_type, mode) / 'A' / ('dist_cell_' + crop_name)),
                         cell_dist_crop)
-            tiff.imsave(str(path_train_sets / "{}_{}".format(cell_type, mode) / 'A' / ('dist_neighbor_' + crop_name)),
+            tiff.imwrite(str(path_train_sets / "{}_{}".format(cell_type, mode) / 'A' / ('dist_neighbor_' + crop_name)),
                         neighbor_dist_crop)
 
             running_crop_idx += 1

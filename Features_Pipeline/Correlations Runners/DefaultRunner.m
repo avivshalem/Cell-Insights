@@ -1,15 +1,23 @@
 %%% Correlations
 %%%
+folderCurrent = "C:\CellInsights\Results\Example";
+mkdir(folderCurrent);
 
-load('\NatureAviv\HGPS_Data\DataFileWithHGPS.mat')
-load('\NatureAviv\HGPS_Data\xys_full_with_HGPS.mat')
-load('\NatureAviv\HGPS_Data\xys_TRJs_with_HGPS.mat')
-load('\NatureAviv\Groups\GI_ONE_DIM_Merged_4_Use.mat')
-load('\NatureAviv\Groups\GI_Good_7_Use.mat')
+load('C:\CellInsights\Tracking\DataFile.mat')
+load('C:\CellInsights\Tracking\xys_full.mat')
+load('C:\CellInsights\Tracking\xys_TRJs.mat')
+DataFileWell = DataFile;
+
+load('C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\HGPS_Data\DataFileWithHGPS.mat')
+load('C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\HGPS_Data\xys_full_with_HGPS.mat')
+load('C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\HGPS_Data\xys_TRJs_with_HGPS.mat')
+load('C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\HGPS_Data\GI_ONE_DIM_Merged_4_Use.mat')
+load('C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\HGPS_Data\GI_Good_7_Use.mat')
+DataFileWell = DataFileWithHGPS;
+
 % toSever = (DataFile.CAP > 113) & (DataFile.CAP < 116);
 % DataFile.CellType(toSever) = 'Severe';
 
-DataFileWell = DataFileWithHGPS;
 toSever = (DataFileWell.CAP > 113) & (DataFileWell.CAP < 500);
 DataFileWell.CellType(toSever) = "'Severe'";
 data = DataFileWell;
@@ -18,7 +26,122 @@ data = DataFileWell;
 feature_vectors = [data.Dp, data.Dtot, data.Pp, data.Psi,...
     data.Pnp, data.Dnp, data.MSD10, ...
     data.Sp, data.Snp];
+combinedIndex = 1:length(feature_vectors);
+feature_vectors = [data.Dp(combinedIndex), data.Dtot(combinedIndex), data.Pp(combinedIndex), data.Psi(combinedIndex),...
+    data.Pnp(combinedIndex), data.Dnp(combinedIndex), data.MSD10(combinedIndex), ...
+    data.Sp(combinedIndex), data.Snp(combinedIndex)];
+feature_names = [{'Dp'}, {'Dtot'},{'Pp'}, {'Psi'}, {'Pnp'}, {'Dnp'},...
+    {'MSD10'}, {'Sp'}, {'Snp'}];
+%% Correlations
+tempType = data.CellType(combinedIndex);
+tempPatient = data.CAPPatient(combinedIndex);
+tempPatient(contains(string(tempPatient), "pro")) = "999'HGPS";
+tempPatient(contains(string(tempPatient), "NA")) = "0'HC";
 
+uniquePatients = unique(tempPatient);
+uniquePatients = natsort(uniquePatients);
+
+XLabels = str2double(regexp(string(uniquePatients),'\d*','Match', 'once'));
+XLabels(XLabels==0) = 40;
+XLabels(XLabels==999) = 161;
+% if uniquePatients(end) == "'HC'"
+%     uniquePatients = circshift(uniquePatients, 1);
+% end
+%
+tileFirst = 1 + floor(size(feature_vectors,2) / 2);
+meanListMatrix = zeros(size(feature_vectors,2), length(XLabels));
+meanListMatrixGroup = zeros(size(feature_vectors,2), 5);
+
+normalized_features = log(feature_vectors);
+z = zscore(normalized_features);
+
+
+for iBig=1:4:size(feature_vectors,2)
+starts = iBig;
+ends = iBig+3;
+if ends > size(feature_vectors,2)
+    ends = size(feature_vectors,2); 
+end
+fig = figure('Position', get(0, 'Screensize'));
+t = tiledlayout(2,2, "TileSpacing", "loose");
+for f=starts:ends
+
+    meanList = [];
+    meanStd = [];
+    meanListZScore = [];
+    meanListZScoreGroup = zeros(1,5);
+    for i=1:length(uniquePatients)
+        currentData = find(tempPatient == uniquePatients(i));
+        currentFeatures = feature_vectors(currentData,f);
+        currentFeaturesZScore = z(currentData,f);
+        currentType = unique(tempType(currentData));
+        if length(currentType) > 1
+            disp('ERROR');
+        end
+        meanList(1+end) = mean(currentFeatures);
+        meanListZScore(1+end) = mean(currentFeaturesZScore);
+        if i == 1
+            meanListZScoreGroup(1) = meanListZScoreGroup(1) + mean(currentFeaturesZScore);
+        elseif i<8
+                meanListZScoreGroup(2) = meanListZScoreGroup(2) + mean(currentFeaturesZScore);
+        elseif i<17
+                meanListZScoreGroup(3) = meanListZScoreGroup(3) + mean(currentFeaturesZScore);
+        elseif i<22
+                meanListZScoreGroup(4) = meanListZScoreGroup(4) + mean(currentFeaturesZScore);
+        elseif i == 22
+                meanListZScoreGroup(5) = meanListZScoreGroup(5) + mean(currentFeaturesZScore);
+        end
+        meanStd(1+end) = std(currentFeatures);
+    end
+    nexttile;
+    currX = 1:length(meanList);
+    XLabels = str2double(regexp(string(uniquePatients),'\d*','Match', 'once'));
+    XLabels(XLabels==0) = 40;
+    XLabels(XLabels==999) = 161;
+    currX = XLabels;
+    errorbar(currX, meanList,meanStd, 'bp', 'MarkerEdgeColor',[1 0 0],...
+                'MarkerFaceColor',[0 .5 .5],...
+                'LineWidth',0.25);
+    meanListMatrix(f, :) = meanListZScore;
+    meanListMatrixGroup(f,1) = meanListZScoreGroup(1);
+    meanListMatrixGroup(f,2) = meanListZScoreGroup(2)/6;
+    meanListMatrixGroup(f,3) = meanListZScoreGroup(3)/9;
+    meanListMatrixGroup(f,4) = meanListZScoreGroup(4)/5;
+    meanListMatrixGroup(f,5) = meanListZScoreGroup(5);
+
+    hold on
+    CAPS = unique(round(data.CAP(combinedIndex)));
+    CAPS = CAPS(2:end-1)';
+%     XT = [40, 60, 76, 94, 110, 119, 141, 161]; 
+    XT = [40, CAPS, 161];
+%     XLabels = ['HC', string(60), string(76), string(94), string(110), string(119), string(141), 'HGPS']; 
+    XLabels = ['HC', string(CAPS), 'HGPS']; 
+    set(gca, 'XTick', XT, 'XTickLabel', XLabels, 'fontweight','bold');
+    pearson = corrcoef(currX,meanList);
+    B = [currX(:) ones(size(currX(:)))] \ meanList(:);
+    yfit = [currX(:) ones(size(currX(:)))]  * B;
+    plot(currX, yfit, '-m')
+    hold on
+    fitresult = fit(currX,meanList','exp1');
+    p11 = predint(fitresult,currX,0.8,'observation','off');
+    hold on;
+    plot(currX,p11,'k--')
+    hold off
+    xlim([min(XT)*0.8 max(XT)*1.05])
+    ylim([-0.1 1.15*max(meanStd + meanList)])
+    xlabel('CAP Score','fontweight','bold');
+    ylabel(string(feature_names(f)),'fontweight','bold');
+    if length(pearson) == 1
+        title(strcat('Pearson Coefficient is', {' '}, num2str(pearson)),'fontweight','bold');
+    else
+        title(strcat('Pearson Coefficient is', {' '}, num2str(pearson(2))),'fontweight','bold');
+    end
+
+end
+F    = getframe(fig);
+exportgraphics(t,strcat(folderCurrent, '\_z_CAP_Correlations_', num2str(iBig), '.png'),'Resolution',500)
+end
+%%
 % TF = [];
 % for feature=1:size(feature_vectors,2)
 %     TF = [TF isoutlier(feature_vectors(:,feature))];
@@ -128,8 +251,7 @@ AllCountSevereAll = find(data.CellType == uniques(5,:));
 close all
 combinedIndex = combinedIndexCached;
 % Correlations Loop Fixed X AXIS
-folderCurrent = "Results\Regular";
-mkdir(folderCurrent);
+
 feature_vectors = [data.Dp, data.Dtot, data.Pp, data.Psi,...
     data.Pnp, data.Dnp, data.MSD10, ...
     data.Sp, data.Snp];
@@ -432,7 +554,7 @@ for feature=1:size(featuresToUse, 2)
         end
     end
 end
-%%
+%% Correlations After Outliers and Removels
 tempType = data.CellType(combinedIndex);
 tempPatient = data.CAPPatient(combinedIndex);
 tempPatient(contains(string(tempPatient), "pro")) = "999'HGPS";
@@ -543,6 +665,7 @@ exportgraphics(t,strcat(folderCurrent, '\_z_CAP_Correlations_', num2str(iBig), '
 end
 
 %% Velocity 
+close all;
 idxComb = combinedIndex;
 xysM = xys_TRJs_with_HGPS(idxComb);
 xys_full = xys_full_with_HGPS;
@@ -817,7 +940,7 @@ saveas(g, strcat(folderCurrent, '\FeaturCrossCorrelations.png'))
 % xysMain=get_trajfile; %(DATA.mat)
 % xysMain_progeria=get_trajfile; %(DATA.xlsx)
 
-%%%
+%%
 idxComb = combinedIndex;
 xysMain = xys_TRJs_with_HGPS;
 xys_full = xys_full_with_HGPS;
@@ -1003,7 +1126,7 @@ saveas(g, strcat(folderCurrent, '\z_ThetaPatients.png'))
 % legend(name, 'Location', 'bestoutside');
 % legend('HC','Premanifest' ,'Mild', 'Severe','Location','bestoutside');
 %
-%% dTheta PDF
+% dTheta PDF
 close all
 param.showfig=1;
 param.saveres=0;
@@ -2662,38 +2785,38 @@ g.WindowState = 'maximized';
 saveas(g, strcat(folderCurrent, '\clusters_z_ACF.png'))
 
 
-%% dR PDF
-% close all force
-param.dxmax=50;
-param.binn=70;            
-param.showfig=1;
-param.saveres=0;
-param.dim=2;            
-param.outfigurenum=302;
-param.aviv=0;
-
-param.markertype2=':';
-for j = 1:num_clusters
-        i = clusters_order(j);
-    comb = saved_var_flipped{i}';
-    aPol = xys(comb);
-
-    param.markertype=CMCell{i};
-    get_dR_PDF(aPol, 10, param);
-    hold on;
-    
-    
-end
-
-title('PDF Cellular Displacements');
-ylabel('Occurrence') ;
-xlabel('Displacement (µm)');
-legend('Cluster 1','Cluster 2' ,'Cluster 3', 'Cluster 4','Cluster 5','Cluster 6','Cluster 7', 'Location','bestoutside');
-    axis square;
-    box on
-g = gcf;
-g.WindowState = 'maximized';
-saveas(g, strcat(folderCurrent, '\clusters_z_PDF.png'))
+% %% dR PDF
+% % close all force
+% param.dxmax=50;
+% param.binn=70;            
+% param.showfig=1;
+% param.saveres=0;
+% param.dim=2;            
+% param.outfigurenum=302;
+% param.aviv=0;
+% 
+% param.markertype2=':';
+% for j = 1:num_clusters
+%         i = clusters_order(j);
+%     comb = saved_var_flipped{i}';
+%     aPol = xys(comb);
+% 
+%     param.markertype=CMCell{i};
+%     get_dR_PDF(aPol, 10, param);
+%     hold on;
+% 
+% 
+% end
+% 
+% title('PDF Cellular Displacements');
+% ylabel('Occurrence') ;
+% xlabel('Displacement (µm)');
+% legend('Cluster 1','Cluster 2' ,'Cluster 3', 'Cluster 4','Cluster 5','Cluster 6','Cluster 7', 'Location','bestoutside');
+%     axis square;
+%     box on
+% g = gcf;
+% g.WindowState = 'maximized';
+% saveas(g, strcat(folderCurrent, '\clusters_z_PDF.png'))
 %% Draw (project) 1d of the 2dPCA clusters line
 temp_Patient;
 new_feat = round(temp_Patient);
@@ -3038,11 +3161,7 @@ for i = num_clusters:-1:1
             scatter(cluster_points(:, 1), cluster_points(:, 2), 25, cluster_colors, markers{i}, 'filled', ...
         'MarkerFaceAlpha', 0.75, 'MarkerEdgeAlpha', 0.75);
     else
-    if i == 1 || i == 2
-        o = 0.75;
-    else
-        o = 0.75;
-    end
+    o = 0.75;
     cluster_colors = colors_mapped(IDX == i, :);
         scatter(cluster_points(:, 1), cluster_points(:, 2), 25, cluster_colors, markers{i}, 'filled', ...
         'MarkerFaceAlpha', o, 'MarkerEdgeAlpha', o);

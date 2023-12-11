@@ -1,13 +1,13 @@
 import os
-import SegmentationPipeline as Segmentation
-import TrackingPipeline as Tracking
-import VisualizerExtractorPipeline as VisulizeExtractor
+import Segmentation_Pipeline.SegmentationPipeline as Segmentation
+import Tracking_Pipeline.TrackingPipeline as Tracking
+import Tracking_Pipeline.VisualizerExtractorPipeline as VisulizeExtractor
 from tkinter import Tk, filedialog
 import tifffile as tiff
 import numpy as np
 import time
 import matplotlib.pyplot as plt
-
+import fix_trajectories
 
 def main():
     print('Process Started.. \n')
@@ -78,6 +78,7 @@ def main():
         if not trackingFolder:
             print('Tracking results save folder was not chosen and default path is selected')
             trackingFolder = r'C:\CellInsights\Tracking'
+        trackingFolderMain = trackingFolder
         if experimentName not in trackingFolder:
             trackingFolder = os.path.join(trackingFolder, experimentName)
             os.makedirs(trackingFolder, exist_ok=True)
@@ -91,7 +92,7 @@ def main():
                 imageIndex = image - int(sequenceOffset[experimentName])
                 if imageIndex < 0:
                     imageIndex += np.shape(imageSequence)[0]
-                tiff.imsave(os.path.join(saveFolder, f't{str(imageIndex).zfill(3)}.tif') , imageSequence[image])
+                tiff.imwrite(os.path.join(saveFolder, f't{str(imageIndex).zfill(3)}.tif') , imageSequence[image])
                 plt.imsave(os.path.join(saveFolderPNG, f't{str(imageIndex).zfill(3)}.png'), imageSequence[image], cmap='gray')
             print(f'Image Separator Done. Took {round((time.time() - seperateTime)/60, 2)} minutes\n')
 
@@ -119,8 +120,9 @@ def main():
 
     # Finished
     print(f'\nEntire Process Completed. Took {round((time.time() - allTime)/60, 2)} minutes to process {len(filenames)} experiments\n')
-
+    return trackingFolderMain
 
 if __name__ == "__main__":
 
-    main()
+    TrackingFolder = main()
+    fix_trajectories.main(TrackingFolder)

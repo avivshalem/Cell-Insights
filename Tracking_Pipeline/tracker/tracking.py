@@ -412,9 +412,9 @@ class ROI:
         """
         self.center = np.array(center_position)
         self.box_size = tuple(box_size)
-        self.top_left = np.array(np.array(center_position) - np.array(box_size) // 2, np.int)
+        self.top_left = np.array(np.array(center_position) - np.array(box_size) // 2, int)
         self.bottom_right = np.array(np.array(center_position) + np.array(box_size) // 2
-                                     + np.array(box_size) % 2, np.int)
+                                     + np.array(box_size) % 2, int)
 
     def crop_box(self, img_shape):
         # this is basically a[0]:b[0],a[1]:b[1],... to select a set of indices from an array
@@ -423,7 +423,7 @@ class ROI:
 
     def adapt_roi(self, center):
         self.center = np.array(center)
-        self.top_left = np.array(np.array(self.center) - np.array(self.box_size) // 2, np.int)
+        self.top_left = np.array(np.array(self.center) - np.array(self.box_size) // 2, int)
         self.bottom_right = np.array(np.array(self.center) + np.array(self.box_size) // 2 +
                                      np.array(self.box_size) % 2,
-                                     np.int)
+                                     int)

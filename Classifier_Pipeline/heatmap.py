@@ -1,3 +1,5 @@
+import os
+
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -33,5 +35,6 @@ plt.ylabel("Classes")
 plt.xticks(rotation=30)  # This line rotates the x-axis labels by 45 degrees
 plt.title('Model Results on MitoQ 1µM Experiment Data')
 # plt.show()
-savePlots = r'\Classifier'
+savePlots = r'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\Classifier'
+os.makedirs(savePlots, exist_ok=True)
 plt.savefig(savePlots + fr'\Heatmap2.png', bbox_inches='tight', dpi=900)

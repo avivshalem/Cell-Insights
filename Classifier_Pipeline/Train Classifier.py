@@ -135,21 +135,21 @@ def extract_pValue(dic):
 
 # Load the Excel file into a Pandas DataFrame
 file = 'PlateResults - LaminB+a actinin- S exp4 05.07.22__2022-07-12T10_09_44-Measurement 1'
-df1 = pd.read_excel(rf'\LaminB\{file}.xlsx')
+df1 = pd.read_excel(rf'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\LaminB Data\{file}.xlsx')
 file = 'PlateResults - LaminB+a actinin- S exp4 05.07.22 (9-10)__2022-07-12T11_44_17-Measurement 1'
-df2 = pd.read_excel(rf'\LaminB\{file}.xlsx')
+df2 = pd.read_excel(rf'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\LaminB Data\{file}.xlsx')
 file = 'PlateResults - LaminB+a actinin- R exp4 05.07.22__2022-07-17T09_42_44-Measurement 1'
-df3 = pd.read_excel(rf'\LaminB\{file}.xlsx')
+df3 = pd.read_excel(rf'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\LaminB Data\{file}.xlsx')
 file = 'PlateResults - LaminB+a actinin- exp8 12.02.23__2023-02-20T14_52_23-Measurement 1'
-df4 = pd.read_excel(rf'\LaminB\{file}.xlsx')
+df4 = pd.read_excel(rf'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\LaminB Data\{file}.xlsx')
 file = 'PlateResults - LaminB+a actinin- exp7 06.02.23__2023-02-19T14_31_42-Measurement 1'
-df5 = pd.read_excel(rf'\LaminB\{file}.xlsx')
+df5 = pd.read_excel(rf'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\LaminB Data\{file}.xlsx')
 file = 'PlateResults - LaminB+a actinin- exp6  05.02.23__2023-02-19T12_14_21-Measurement 1'
-df6 = pd.read_excel(rf'\LaminB\{file}.xlsx')
+df6 = pd.read_excel(rf'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\LaminB Data\{file}.xlsx')
 file = 'PlateResults - LaminB+a actinin- exp5 plate1 08.01.23__2023-01-12T15_50_14-Measurement 1'
-df7 = pd.read_excel(rf'\LaminB\{file}.xlsx')
+df7 = pd.read_excel(rf'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\LaminB Data\{file}.xlsx')
 file = 'HGPS PlateResults'
-df8 = pd.read_excel(rf'\LaminB\{file}.xlsx')
+df8 = pd.read_excel(rf'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\LaminB Data\{file}.xlsx')
 dfs = [df1, df3, df4, df5, df6, df7, df8]
 dfsNew = []
 dfCached = pd.concat(dfs, axis=0)
@@ -614,9 +614,9 @@ def extract_pValue(dic):
                     print("{} vs {}: U-statistic = {:.2f}, p-value = {:.4f}".format(key1, key2, u_statistic, p_valueMW))
 
 CounterXL = 0
-df1 = pd.read_excel(r'\SegmentationAgain\Segmentation\output.xlsx')
-df2 = pd.read_excel(r'\output707_708_24H_normed.xlsx')
-df3 = pd.read_excel(r'\outputHCR.xlsx')
+df1 = pd.read_excel(r'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\output.xlsx')
+df2 = pd.read_excel(r'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\output707_708_24H_normed.xlsx')
+df3 = pd.read_excel(r'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\outputHCR.xlsx')
 df = pd.concat([df1, df2, df3])
 df_new = pd.DataFrame()
 cols = df.iloc[:, 0]
@@ -932,7 +932,7 @@ for item in df.columns[2:3]:
         dataMean.append(res)
 
 
-df_migration = pd.read_excel(r'\MigrationData.xlsx')
+df_migration = pd.read_excel(r'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\MigrationData.xlsx')
 Dp_feature_all = df_migration.Dp
 Dtot_feature_all = df_migration.Dtot
 Pp_feature_all = df_migration.Pp
@@ -1258,7 +1258,7 @@ if runClassifier:
 
 runNetwork = False
 if runNetwork:
-    path = r'\Models_Classifier'
+    path = r'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\Models_Classifier'
     os.makedirs(path, exist_ok=True)
 
     features_train = [Dp_feature_Train, ratio_width_to_length_mean_feature_train,
@@ -1388,7 +1388,7 @@ if runNetwork:
 
 runComb = True
 if runComb:
-    path = r'\Models_Classifier'
+    path = r'C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\Features\Models_Classifier'
     os.makedirs(path, exist_ok=True)
 
     features_train = [Dp_feature_Train, ratio_width_to_length_mean_feature_train,

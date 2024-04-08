@@ -148,15 +148,24 @@ def generate_data(img, mask, search_radius, max_mal, cell_type, crop_size, mode,
 
             crop_name = str(i) + '_' + str(y)+ '_' + str(x) + '.png'
             imageio.imsave(str(path_train_sets / "{}_{}".format(cell_type, mode)  / ('img_' + crop_name)),
-                        img_crop)
+                        np.squeeze(img_crop))
             imageio.imsave(str(path_train_sets / "{}_{}".format(cell_type, mode)  / ('mask_' + crop_name)),
-                        mask_crop)
+                        np.squeeze(mask_crop))
+            cell_dist_crop_squeezed = np.squeeze(cell_dist_crop)
+            cell_dist_crop_squeezed = (cell_dist_crop_squeezed - cell_dist_crop_squeezed.min()) / (
+                        cell_dist_crop_squeezed.max() - cell_dist_crop_squeezed.min())
+            cell_dist_crop_8bit = np.uint8(cell_dist_crop_squeezed * 255)
             imageio.imsave(
                 str(path_train_sets / "{}_{}".format(cell_type, mode)  / ('dist_cell_' + crop_name)),
-                cell_dist_crop)
+                cell_dist_crop_8bit)
+
+            neighbor_dist_crop_squeezed = np.squeeze(neighbor_dist_crop)
+            neighbor_dist_crop_squeezed = (neighbor_dist_crop_squeezed - neighbor_dist_crop_squeezed.min()) / (
+                        neighbor_dist_crop_squeezed.max() - neighbor_dist_crop_squeezed.min())
+            neighbor_dist_crop_8bit = np.uint8(neighbor_dist_crop_squeezed * 255)
             imageio.imsave(
                 str(path_train_sets / "{}_{}".format(cell_type, mode)  / ('dist_neighbor_' + crop_name)),
-                neighbor_dist_crop)
+                neighbor_dist_crop_8bit)
 
     return None
 
@@ -638,6 +647,7 @@ def create_ctc_training_sets(path_data, path_train_sets, cell_types):
                               'w', encoding='utf-8') as outfile:
                         json.dump(train_val_ids, outfile, ensure_ascii=False, indent=2)
 
+                exit()
                 for train_mode in ['train', 'val']:
                     for idx in train_val_ids[train_mode]:
                         source_path = path_train_sets / "{}_{}".format(cell_type, mode)
@@ -646,6 +656,7 @@ def create_ctc_training_sets(path_data, path_train_sets, cell_types):
                         #     source_path = source_path / "A"
                         # else:
                         #     source_path = source_path / "B"
+
                         shutil.copyfile(str(source_path / "img_{}.png".format(idx)),
                                         str(target_path / "img_{}.png".format(idx)))
                         shutil.copyfile(str(source_path / "dist_cell_{}.png".format(idx)),

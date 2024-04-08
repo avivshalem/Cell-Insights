@@ -110,23 +110,23 @@ def main(th_seed, th_cell, apply_clahe, savePath, resultPath, model_type='Incell
             print('Seed fusion in z-direction: on')
 
 
-        # if '2D' in cell_type:
+        if '2D' in cell_type:
             # print('2d')
-        inference_2d_ctc(model=model,
-                         data_path=Path(args.savePath),
-                         result_path=Path(args.resultPath),
-                         device=device,
-                         batchsize=args.batch_size,
-                         args=args,
-                         num_gpus=num_gpus)
-        # else:
-        #     inference_3d_ctc(model=model,
-        #                      data_path=path_datasets / 'challenge_datasets' / cell_type / '01',
-        #                      result_path=path_seg_results,
-        #                      device=device,
-        #                      batchsize=args.batch_size,
-        #                      args=args,
-        #                      num_gpus=num_gpus)
+            inference_2d_ctc(model=model,
+                             data_path=Path(args.savePath),
+                             result_path=Path(args.resultPath),
+                             device=device,
+                             batchsize=args.batch_size,
+                             args=args,
+                             num_gpus=num_gpus)
+        else:
+            inference_3d_ctc(model=model,
+                             data_path=path_datasets / 'challenge_datasets' / cell_type / '01',
+                             result_path=path_seg_results,
+                             device=device,
+                             batchsize=args.batch_size,
+                             args=args,
+                             num_gpus=num_gpus)
 
 
 if __name__ == "__main__":

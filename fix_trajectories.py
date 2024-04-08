@@ -15,7 +15,7 @@ def main(path):
         if '.csv' in experiment:
             continue
         try:
-            df = pd.read_excel(os.path.join(path, experiment, r'XY_Positions.xlsx'))
+            df = pd.read_excel(os.path.join(path, experiment, r'XY_Positions.xlsx'), engine='openpyxl')
         except FileNotFoundError:
             continue    # if 'LatB' in experiment:
         #     HDorHC = 'HD_LatB'

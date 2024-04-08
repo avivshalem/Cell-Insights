@@ -1,7 +1,7 @@
 import os
-import SegmentationPipeline as Segmentation
-import TrackingPipeline as Tracking
-import VisualizerExtractorPipeline as VisulizeExtractor
+import Segmentation_Pipeline.SegmentationPipeline as Segmentation
+import Tracking_Pipeline.TrackingPipeline as Tracking
+import Tracking_Pipeline.VisualizerExtractorPipeline as VisulizeExtractor
 from tkinter import Tk, filedialog
 import tifffile as tiff
 import numpy as np

@@ -22,7 +22,7 @@ def main():
     # Askers
     readerAsk = input("Run image separator? (YES/NO) ")
     segmentAsk = input("Run segmentation? (YES/NO) ")
-    modelAsk = input("Run 'Incell' model? (YES/NO) IF NO, WILL RUN 'Incocite' model")
+    modelAsk = input("Run 'INCell' model? (YES/NO) IF NO, WILL RUN 'Incucyte' model")
     trackAsk = input("Run tracking? (YES/NO) ")
     extractAsk = input("Run extractor? (YES/NO) ")
     defaultAsk = input("Use default paths to save? \nNote: if NO, each experiment will need a specific path, and process will be stopped until path is chosen! (YES/NO) ")

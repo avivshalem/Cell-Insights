@@ -214,7 +214,7 @@ def dummy_objects(img_size=(200, 200), max_n_obj=5):
                     off_position[0] + obj_disk.shape[0] // 2 + 1,
                     off_position[1] - obj_disk.shape[1] // 2:
                     off_position[1] + obj_disk.shape[1] // 2 + 1] += obj_disk
-    return mask, (merged_mask > 0).astype(np.int), obj_positions
+    return mask, (merged_mask > 0).astype(int), obj_positions
 
 
 if __name__ == '__main__':

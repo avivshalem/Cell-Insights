@@ -77,7 +77,7 @@ def test_multi_merged_2d():
         print(f'Skip creating directory {data_path}')
 
     # save img, masks
-    binary_img = (ground_truth_img > 0).astype(np.int)
+    binary_img = (ground_truth_img > 0).astype(int)
     for i in range(t_steps):
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -125,7 +125,7 @@ def test_multi_split_2D():
         print(f'Skip creating directory {data_path}')
 
     # save img, masks
-    binary_img = (ground_truth_img > 0).astype(np.int)
+    binary_img = (ground_truth_img > 0).astype(int)
     for i in range(t_steps):
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -174,7 +174,7 @@ def test_skip_2D():
         print(f'Skip creating directory {data_path}')
 
     # save img, masks
-    binary_img = (ground_truth_img > 0).astype(np.int)
+    binary_img = (ground_truth_img > 0).astype(int)
     for i in range(t_steps):
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -239,10 +239,10 @@ def test_mitosis_2D():
     # save img, masks
     for i in range(t_steps):
         if i < t_mitosis:
-            binary_img = (pre_mitosis_gt > 0).astype(np.int)
+            binary_img = (pre_mitosis_gt > 0).astype(int)
             segmentation_img = pre_mitosis_gt
         else:
-            binary_img = (post_mitosis_gt > 0).astype(np.int)
+            binary_img = (post_mitosis_gt > 0).astype(int)
             segmentation_img = post_mitosis_gt
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -304,10 +304,10 @@ def test_appear_2D():
     # save img, masks
     for i in range(t_steps):
         if i < t_appear:
-            binary_img = (gt_pre_appearance > 0).astype(np.int)
+            binary_img = (gt_pre_appearance > 0).astype(int)
             segmentation_img = gt_pre_appearance
         else:
-            binary_img = (gt_post_appearance > 0).astype(np.int)
+            binary_img = (gt_post_appearance > 0).astype(int)
             segmentation_img = gt_post_appearance
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -370,10 +370,10 @@ def test_delete_2D():
     # save img, masks
     for i in range(t_steps):
         if i < t_delete:
-            binary_img = (gt_pre_deletion > 0).astype(np.int)
+            binary_img = (gt_pre_deletion > 0).astype(int)
             segmentation_img = gt_pre_deletion
         else:
-            binary_img = (gt_post_deletion > 0).astype(np.int)
+            binary_img = (gt_post_deletion > 0).astype(int)
             segmentation_img = gt_post_deletion
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -426,7 +426,7 @@ def test_multi_merged_3D():
         print(f'Skip creating directory {data_path}')
 
     # save img, masks
-    binary_img = (ground_truth_img > 0).astype(np.int)
+    binary_img = (ground_truth_img > 0).astype(int)
     for i in range(t_steps):
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -474,7 +474,7 @@ def test_multi_split_3D():
         print(f'Skip creating directory {data_path}')
 
     # save img, masks
-    binary_img = (ground_truth_img > 0).astype(np.int)
+    binary_img = (ground_truth_img > 0).astype(int)
     for i in range(t_steps):
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -523,7 +523,7 @@ def test_skip_3D():
         print(f'Skip creating directory {data_path}')
 
     # save img, masks
-    binary_img = (ground_truth_img > 0).astype(np.int)
+    binary_img = (ground_truth_img > 0).astype(int)
     for i in range(t_steps):
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -587,10 +587,10 @@ def test_mitosis_3D():
     # save img, masks
     for i in range(t_steps):
         if i < t_mitosis:
-            binary_img = (pre_mitosis_gt > 0).astype(np.int)
+            binary_img = (pre_mitosis_gt > 0).astype(int)
             segmentation_img = pre_mitosis_gt
         else:
-            binary_img = (post_mitosis_gt > 0).astype(np.int)
+            binary_img = (post_mitosis_gt > 0).astype(int)
             segmentation_img = post_mitosis_gt
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -652,10 +652,10 @@ def test_appear_3D():
     # save img, masks
     for i in range(t_steps):
         if i < t_appear:
-            binary_img = (gt_pre_appearance > 0).astype(np.int)
+            binary_img = (gt_pre_appearance > 0).astype(int)
             segmentation_img = gt_pre_appearance
         else:
-            binary_img = (gt_post_appearance > 0).astype(np.int)
+            binary_img = (gt_post_appearance > 0).astype(int)
             segmentation_img = gt_post_appearance
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)
@@ -718,10 +718,10 @@ def test_delete_3D():
     # save img, masks
     for i in range(t_steps):
         if i < t_delete:
-            binary_img = (gt_pre_deletion > 0).astype(np.int)
+            binary_img = (gt_pre_deletion > 0).astype(int)
             segmentation_img = gt_pre_deletion
         else:
-            binary_img = (gt_post_deletion > 0).astype(np.int)
+            binary_img = (gt_post_deletion > 0).astype(int)
             segmentation_img = gt_post_deletion
         img = binary_img + np.random.randn(*binary_img.shape) * 0.005
         img = (img * 15000).astype(np.uint16)

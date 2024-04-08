@@ -25,7 +25,7 @@ def main():
 
     # Get arguments
     parser = argparse.ArgumentParser(description='Cell Segmentation')
-    parser.add_argument('--train', '-t', default=False, action='store_true', help='Train new models')
+    parser.add_argument('--train', '-t', default=True, action='store_true', help='Train new models')
     parser.add_argument('--evaluate', '-e', default=False, action='store_true', help='Evaluate models')
     parser.add_argument('--inference', '-i', default=False, action='store_true', help='Inference')
     parser.add_argument('--save_raw_pred', '-s', default=False, action='store_true', help='Save raw predictions')
@@ -40,7 +40,7 @@ def main():
     parser.add_argument('--multi_gpu', '-mgpu', default=True, action='store_true', help='Use multiple GPUs')
     parser.add_argument('--artifact_correction', default=False, action='store_true', help='Artifact correction (only for very dense cells, e.g., HSC')
     parser.add_argument('--fuse_z_seeds', default=False, action='store_true', help='Fuse seeds in z-direction')
-    parser.add_argument('--cuda', default=False, action='store_true', help='Use CUDA')
+    parser.add_argument('--cuda', default=True, action='store_true', help='Use CUDA')
 
     args = parser.parse_args()
 
@@ -50,7 +50,7 @@ def main():
     paths = {
               "cell_types":
             [
-                "cell"
+                "PhC-C2DL-PSC"
             ],
               "path_ctc_metric": "EvaluationSoftware/",
               "path_data": "data/",

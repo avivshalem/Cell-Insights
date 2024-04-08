@@ -126,7 +126,7 @@ class ExportResults:
                 tracks_in_frame[t_step].append(track_data.track_id)
 
         t_max = sorted(list(tracks_in_frame.keys()))[-1]
-        z_fill = np.int(np.ceil(max(np.log10(max(1, t_max)), 3)))  # either 3 or 4 digits long frame id
+        z_fill = int(np.ceil(max(np.log10(max(1, t_max)), 3)))  # either 3 or 4 digits long frame id
         for time, track_ids in tracks_in_frame.items():
             tracking_mask = create_tracking_mask_image(all_tracks, time, track_ids, img_shape)
 

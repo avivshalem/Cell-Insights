@@ -3,10 +3,20 @@
 folderCurrent = "C:\CellInsights\Results\Example";
 mkdir(folderCurrent);
 
-% load('C:\CellInsights__\Tracking\DataFile.mat')
-% load('C:\CellInsights__\Tracking\xys_full.mat')
-% load('C:\CellInsights__\Tracking\xys_TRJs.mat')
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Activate the below if using own data
+%%% Change path accordingly
+
+% load('C:\CellInsights\Tracking\DataFile.mat')
+% load('C:\CellInsights\Tracking\xys_full.mat')
+% load('C:\CellInsights\Tracking\xys_TRJs.mat')
 % DataFileWell = DataFile;
+
+%%% End Activation
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Activate the below if using example data
 
 load('DataFileWithHGPS.mat')
 load('xys_full_with_HGPS.mat')
@@ -14,6 +24,9 @@ load('xys_TRJs_with_HGPS.mat')
 load('GI_ONE_DIM_Merged_4_Use.mat')
 load('GI_Good_7_Use.mat')
 DataFileWell = DataFileWithHGPS;
+
+%%% End Activation
+%%%%%%%%%%%%%%%%%%%%%%%%
 
 % toSever = (DataFile.CAP > 113) & (DataFile.CAP < 116);
 % DataFile.CellType(toSever) = 'Severe';

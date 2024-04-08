@@ -1,3 +1,7 @@
+%% default path
+default_path = 'C:\CellInsights\Tracking';
+
+%%
 VarName1All = [VarName1];
 VarName2All = [VarName2];
 VarName3All = [VarName3];
@@ -80,11 +84,11 @@ end
 %% Write to xlsx
 T = table(new_CELLID, new_ycoordinatepixel, new_xcoordinatepixel,...
     new_Framenumber, new_CellID);
-filename = 'C:\CellInsights\Tracking\Data_All_Information.xlsx';
+filename = strcat(default_path, '\Data_All_Information.xlsx');
 writetable(T,filename,'Sheet',1)
 
 T = table(new_CellID, new_Framenumber, new_xcoordinatepixel, new_ycoordinatepixel);
-filename = 'C:\CellInsights\Tracking\Data_CellID_Frame_X_Y.xlsx';
+filename = strcat(default_path, '\Data_CellID_Frame_X_Y.xlsx');
 writetable(T,filename,'Sheet',1)
  
 %% MEAN SQUARED DISPLACEMENT 10
@@ -106,60 +110,3 @@ for i=1:numel(CellID_unique)
     CELLID_unique(i) = new_CELLID(find(new_CellID == temp_CellID,1,'first'));
     %VarName3_unique(i) = new_VarName3(find(new_CellID == temp_CellID,1,'first'));
 end
-
-%% Below are Extras, not needed
-% 
-% 
-% 
-% 
-% 
-%
-%
-%
-%
-%
-%% Write to Mat
-T = [new_CellID, new_Framenumber, new_xcoordinatepixel, new_ycoordinatepixel];
-
-filename = 'Data.mat';
-save(filename, 'T')
-
-%%
-VarName1All = [VarName1; VarName8];
-VarName2All = [VarName2; VarName9];
-VarName3All = [VarName3; VarName10];
-VarName4All = [VarName4; VarName11];
-VarName5All = [VarName5; VarName12];
-VarName6All = [VarName6; VarName13];
-VarName7All = [VarName7; VarName14];
-%%
-VarName1All = [VarName1; VarName8; VarName15];
-VarName2All = [VarName2; VarName9; VarName16];
-VarName3All = [VarName3; VarName10; VarName17];
-VarName4All = [VarName4; VarName11; VarName18];
-VarName5All = [VarName5; VarName12; VarName19];
-VarName6All = [VarName6; VarName13; VarName20];
-VarName7All = [VarName7; VarName14; VarName21];
-%%
-% VarName1All = [VarName1; VarName8; VarName15; VarName22];
-% VarName2All = [VarName2; VarName9; VarName16; VarName23];
-% VarName3All = [VarName3; VarName10; VarName17; VarName24];
-% VarName4All = [VarName4; VarName11; VarName18; VarName25];
-% VarName5All = [VarName5; VarName12; VarName19; VarName26];
-% VarName6All = [VarName6; VarName13; VarName20; VarName27];
-% VarName7All = [VarName7; VarName14; VarName21; VarName28];
-
-% VarName1All = [VarName1; VarName8; VarName15; VarName22; VarName29; VarName36];
-% VarName2All = [VarName2; VarName9; VarName16; VarName23; VarName30; VarName37];
-% VarName3All = [VarName3; VarName10; VarName17; VarName24; VarName31; VarName38];
-% VarName4All = [VarName4; VarName11; VarName18; VarName25; VarName32; VarName39];
-% VarName5All = [VarName5; VarName12; VarName19; VarName26; VarName33; VarName40];
-% VarName6All = [VarName6; VarName13; VarName20; VarName27; VarName34; VarName41];
-% VarName7All = [VarName7; VarName14; VarName21; VarName28; VarName35; VarName42];
-VarName1All = [VarName1; VarName8; VarName15; VarName22; VarName29; VarName36; VarName43];
-VarName2All = [VarName2; VarName9; VarName16; VarName23; VarName30; VarName37; VarName44];
-VarName3All = [VarName3; VarName10; VarName17; VarName24; VarName31; VarName38; VarName45];
-VarName4All = [VarName4; VarName11; VarName18; VarName25; VarName32; VarName39; VarName46];
-VarName5All = [VarName5; VarName12; VarName19; VarName26; VarName33; VarName40; VarName47];
-VarName6All = [VarName6; VarName13; VarName20; VarName27; VarName34; VarName41; VarName48];
-VarName7All = [VarName7; VarName14; VarName21; VarName28; VarName35; VarName42; VarName49];

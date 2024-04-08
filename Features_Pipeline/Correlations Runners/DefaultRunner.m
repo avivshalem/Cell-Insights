@@ -3,16 +3,16 @@
 folderCurrent = "C:\CellInsights\Results\Example";
 mkdir(folderCurrent);
 
-load('C:\CellInsights\Tracking\DataFile.mat')
-load('C:\CellInsights\Tracking\xys_full.mat')
-load('C:\CellInsights\Tracking\xys_TRJs.mat')
-DataFileWell = DataFile;
+% load('C:\CellInsights__\Tracking\DataFile.mat')
+% load('C:\CellInsights__\Tracking\xys_full.mat')
+% load('C:\CellInsights__\Tracking\xys_TRJs.mat')
+% DataFileWell = DataFile;
 
-load('C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\HGPS_Data\DataFileWithHGPS.mat')
-load('C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\HGPS_Data\xys_full_with_HGPS.mat')
-load('C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\HGPS_Data\xys_TRJs_with_HGPS.mat')
-load('C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\HGPS_Data\GI_ONE_DIM_Merged_4_Use.mat')
-load('C:\Users\avivs\PycharmProjects\CellInsights\Example_Data\Cell_Insights_Large_Files\Features\HGPS_Data\GI_Good_7_Use.mat')
+load('DataFileWithHGPS.mat')
+load('xys_full_with_HGPS.mat')
+load('xys_TRJs_with_HGPS.mat')
+load('GI_ONE_DIM_Merged_4_Use.mat')
+load('GI_Good_7_Use.mat')
 DataFileWell = DataFileWithHGPS;
 
 % toSever = (DataFile.CAP > 113) & (DataFile.CAP < 116);
@@ -140,6 +140,118 @@ for f=starts:ends
 end
 F    = getframe(fig);
 exportgraphics(t,strcat(folderCurrent, '\_z_CAP_Correlations_', num2str(iBig), '.png'),'Resolution',500)
+end
+%% Correlations NO HC AND NO HGPS
+tempType = data.CellType(combinedIndex);
+tempPatient = data.CAPPatient(combinedIndex);
+tempPatient(contains(string(tempPatient), "pro")) = "999'HGPS";
+tempPatient(contains(string(tempPatient), "NA")) = "0'HC";
+
+uniquePatients = unique(tempPatient);
+uniquePatients = natsort(uniquePatients);
+
+XLabels = str2double(regexp(string(uniquePatients),'\d*','Match', 'once'));
+XLabels(XLabels==0) = 40;
+XLabels(XLabels==999) = 161;
+% if uniquePatients(end) == "'HC'"
+%     uniquePatients = circshift(uniquePatients, 1);
+% end
+%
+tileFirst = 1 + floor(size(feature_vectors,2) / 2);
+meanListMatrix = zeros(size(feature_vectors,2), length(XLabels));
+meanListMatrixGroup = zeros(size(feature_vectors,2), 5);
+
+normalized_features = log(feature_vectors);
+z = zscore(normalized_features);
+
+
+for iBig=1:1:size(feature_vectors,2)
+starts = iBig;
+ends = iBig;
+if ends > size(feature_vectors,2)
+    ends = size(feature_vectors,2); 
+end
+fig = figure('Position', get(0, 'Screensize'));
+% t = tiledlayout(1,1, "TileSpacing", "loose");
+for f=starts:ends
+
+    meanList = [];
+    meanStd = [];
+    meanListZScore = [];
+    meanListZScoreGroup = zeros(1,5);
+    for i=1:length(uniquePatients)
+        currentData = find(tempPatient == uniquePatients(i));
+        currentFeatures = feature_vectors(currentData,f);
+        currentFeaturesZScore = z(currentData,f);
+        currentType = unique(tempType(currentData));
+        if length(currentType) > 1
+            disp('ERROR');
+        end
+        meanList(1+end) = mean(currentFeatures);
+        meanListZScore(1+end) = mean(currentFeaturesZScore);
+        if i == 1
+            meanListZScoreGroup(1) = meanListZScoreGroup(1) + mean(currentFeaturesZScore);
+        elseif i<8
+                meanListZScoreGroup(2) = meanListZScoreGroup(2) + mean(currentFeaturesZScore);
+        elseif i<17
+                meanListZScoreGroup(3) = meanListZScoreGroup(3) + mean(currentFeaturesZScore);
+        elseif i<22
+                meanListZScoreGroup(4) = meanListZScoreGroup(4) + mean(currentFeaturesZScore);
+        elseif i == 22
+                meanListZScoreGroup(5) = meanListZScoreGroup(5) + mean(currentFeaturesZScore);
+        end
+        meanStd(1+end) = std(currentFeatures);
+    end
+    % nexttile;
+    currX = 1:length(meanList);
+    XLabels = str2double(regexp(string(uniquePatients),'\d*','Match', 'once'));
+    XLabels(XLabels==0) = 40;
+    XLabels(XLabels==999) = 161;
+    currX = XLabels;
+    currX = currX(2:end-1);
+    meanList = meanList(2:end-1);
+    meanStd = meanStd(2:end-1);
+    errorbar(currX, meanList,meanStd, 'bp', 'MarkerEdgeColor',[1 0 0],...
+                'MarkerFaceColor',[0 .5 .5],...
+                'LineWidth',0.25);
+    meanListMatrix(f, :) = meanListZScore;
+    meanListMatrixGroup(f,1) = meanListZScoreGroup(1);
+    meanListMatrixGroup(f,2) = meanListZScoreGroup(2)/6;
+    meanListMatrixGroup(f,3) = meanListZScoreGroup(3)/9;
+    meanListMatrixGroup(f,4) = meanListZScoreGroup(4)/5;
+    meanListMatrixGroup(f,5) = meanListZScoreGroup(5);
+
+    hold on
+    CAPS = unique(round(data.CAP(combinedIndex)));
+    CAPS = CAPS(2:end-1)';
+%     XT = [40, 60, 76, 94, 110, 119, 141, 161]; 
+    XT = [CAPS];
+%     XLabels = ['HC', string(60), string(76), string(94), string(110), string(119), string(141), 'HGPS']; 
+    XLabels = [string(CAPS)]; 
+    set(gca, 'XTick', XT, 'XTickLabel', XLabels, 'fontweight', 'bold', 'FontSize', 14);
+    pearson = corrcoef(currX,meanList);
+    B = [currX(:) ones(size(currX(:)))] \ meanList(:);
+    yfit = [currX(:) ones(size(currX(:)))]  * B;
+    plot(currX, yfit, '-m')
+    hold on
+    fitresult = fit(currX,meanList','exp1');
+    p11 = predint(fitresult,currX,0.8,'observation','off');
+    hold on;
+    plot(currX,p11,'k--')
+    hold off
+    xlim([min(XT)*0.9 max(XT)*1.05])
+    ylim([-0.1 1.15*max(meanStd + meanList)])
+    xlabel('CAP Score', 'FontSize', 18, 'fontweight', 'bold');
+    ylabel(string(feature_names(f)), 'FontSize', 18, 'fontweight', 'bold');
+if length(pearson) == 1
+    title(strcat('Pearson Coefficient is', {' '}, num2str(pearson)), 'FontSize', 18, 'fontweight', 'bold');
+else
+    title(strcat('Pearson Coefficient is', {' '}, num2str(pearson(2))), 'FontSize', 18, 'fontweight', 'bold');
+end
+
+end
+F    = getframe(fig);
+exportgraphics(fig,strcat(folderCurrent, '\_z_CAP_Correlations_NEW_', num2str(iBig), '.png'),'Resolution',500)
 end
 %%
 % TF = [];
@@ -1474,7 +1586,7 @@ g = gcf;
 g.WindowState = 'maximized';
 saveas(g, strcat(folderCurrent, '\z_PDF.png'))
 %
-%%% dR PDF PATIENT
+%% dR PDF PATIENT
 close all force
 param.dxmax=50;
 param.binn=70;            
@@ -2899,7 +3011,7 @@ title('Scatter plot of projected PCA vs. feature');
 grid on;
 
 hold off;
-%% PCA Groups
+%% PCA Groups LaminB1
 temp_Patient;
 new_feat = round(temp_Patient);
 patients;
@@ -2927,6 +3039,203 @@ end
 num_colors = length(map) - 1; % Or some other appropriate number for granularity
 colormap_green = [linspace(0.8, 0, num_colors)' linspace(1, 0.5, num_colors)' linspace(0.8, 0, num_colors)'];
 colormap_purple = [linspace(0.8, 0.4, num_colors)' linspace(0.8, 0, num_colors)' linspace(1, 0.5, num_colors)'];
+% Define 7 distinctive colors
+distinct_colors = [
+    [0.678, 0.847, 0.902]; % Light Blue
+    [0.498, 0.835, 0.498]; % Green
+    [1.0, 1.0, 0.6]; % Yellow
+    [1.0, 0.647, 0.0]; % Orange
+    [1.0, 0.0, 0.0]; % Red
+    [0.545, 0.0, 0.0]; % Dark Red
+    [0.580, 0.0, 0.827]; % Purple
+];
+
+uF = unique(new_feat);
+min_val = min(uF(1:end));
+max_val = max(uF(1:end));
+new_feat_normalized = (new_feat - min_val) / (max_val - min_val);
+% Map normalized new_feat values to the colormap
+color_indices = ceil(new_feat_normalized * (num_colors-1)) + 1;
+color_indices = ceil(new_feat_normalized * (length(distinct_colors) - 1)) + 1; % Assign a color index
+color_indices(color_indices > length(distinct_colors)) = length(distinct_colors); % Ensure indices do not exceed color array length
+
+colormap_use = colormap_purple;
+
+colors_mapped = colormap_use(color_indices, :);
+colors_mapped = distinct_colors(color_indices, :);
+
+
+features_T = z;
+[coeff, score, latent, tsquared, explained, mu] = pca(features_T);
+reduced_data = features_T * coeff(:, 1:2);
+num_clusters = 5;
+num_points = length(reduced_data);
+IDX = zeros(num_points, 1);
+markers = {'^', 'o', '>', 'd', 's', 'h', 'v', '<'};
+
+% Assign cluster numbers to the data points
+classNames = {'HC', 'Premanifest', 'Mild', 'Severe',  'HGPS'};
+
+temp_cellType = DataFileWell.CellType(idxComb);
+IDX(temp_cellType == "'HC'") = 1;
+IDX(temp_cellType == "'Severe'") = 4;
+IDX(temp_cellType == "'Mild'") = 3;
+IDX(temp_cellType == "'Premanifest'") = 2;
+IDX(temp_cellType == "'HGPS'") = 5;
+
+% Create the PCA plot
+figure;
+hold on;
+
+colors = lines(num_clusters); % Creates a color matrix for the clusters
+legend_entries = cell(1, num_clusters);
+for i = num_clusters:-1:1
+    cluster_points = reduced_data(IDX == i, :);
+    % Get the corresponding colors for this cluster
+    if i == num_clusters
+        cluster_colors = colors_mapped(IDX == i, :);
+            scatter(cluster_points(:, 1), cluster_points(:, 2), 25, cluster_colors, markers{i}, 'filled', ...
+        'MarkerFaceAlpha', 0.15, 'MarkerEdgeAlpha', 0.15);
+    else
+    cluster_colors = colors_mapped(IDX == i, :);
+    if i == 1 || i == 2
+        o = 0.15;
+    else
+        o = 0.15;
+    end
+        scatter(cluster_points(:, 1), cluster_points(:, 2), 25, cluster_colors, markers{i}, 'filled', ...
+        'MarkerFaceAlpha',o, 'MarkerEdgeAlpha', o);
+    end
+
+    
+end
+for i = 1:num_clusters
+    cluster_points = reduced_data(IDX == i, :);
+    mean_point = mean(cluster_points, 1);
+    co = 'k';
+    if i == num_clusters
+        co = 'k';
+    end
+    s2 = scatter(mean_point(1), mean_point(2), 'filled', 'MarkerFaceColor', cell2mat(CMCell(i)), ...
+        'MarkerEdgeColor', co, 'LineWidth', 1.7, 'Marker', 'p', 'SizeData', 100);
+    text(mean_point(1)+0.05, mean_point(2), string(classNames(i)), 'FontSize', 12);
+end
+xlabel('First Principal Component');
+ylabel('Second Principal Component');
+xlim([-35 5]);
+ylim([-15 20]);
+title('PCA Projection of Groups onto 2D Plane');
+colorbar;
+colormap(distinct_colors);
+caxis([min_val, max_val]);
+% Add text next to the colorbar:
+ax = gca;
+% text(ax.Position(1) + ax.Position(3) + 8, ax.Position(2) + ax.Position(4) / 2, ...
+%      'Cells Width to Length Ratio', 'Rotation', 90, 'VerticalAlignment', 'middle');
+text(ax.Position(1) + ax.Position(3) + 8, ax.Position(2) + ax.Position(4) / 2, ...
+     'LaminB1 Total Area', 'Rotation', 90, 'VerticalAlignment', 'middle');
+grid on;
+hold off;
+
+legend(string(classNames), 'Location', 'northeast');
+    axis square;
+    box on
+g = gcf;
+g.WindowState = 'maximized';
+% exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_ratio.png'), 'Resolution', 900)
+exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_LaminB1.png'), 'Resolution', 900)
+
+
+figure;
+hold on;
+
+colors = lines(num_clusters); % Creates a color matrix for the clusters
+legend_entries = cell(1, num_clusters);
+for i = num_clusters:-1:1
+    cluster_points = reduced_data(IDX == i, :);
+    if i == num_clusters
+        cluster_colors = colors_mapped(IDX == i, :);
+    scatter(cluster_points(:, 1), cluster_points(:, 2), 25, cluster_colors, markers{i}, 'filled', ...
+        'MarkerFaceAlpha', 0.75, 'MarkerEdgeAlpha', 0.75);
+    else
+    cluster_colors = colors_mapped(IDX == i, :);
+    if i == 1 || i == 2
+        o = 0.35;
+    else
+        o = 0.35;
+    end
+        scatter(cluster_points(:, 1), cluster_points(:, 2), 25, cluster_colors, markers{i}, 'filled', ...
+        'MarkerFaceAlpha',o, 'MarkerEdgeAlpha', o);
+    end
+
+
+
+end
+for i = 1:num_clusters
+    cluster_points = reduced_data(IDX == i, :);
+    mean_point = mean(cluster_points, 1);
+    co = 'k';
+    if i == num_clusters
+        co = 'k';
+    end
+    s2 = scatter(mean_point(1), mean_point(2), 'filled', 'MarkerFaceColor', cell2mat(CMCell(i)), ...
+        'MarkerEdgeColor', co, 'LineWidth', 2.5, 'Marker', 'p', 'SizeData', 100);
+        text(mean_point(1)+0.05, mean_point(2), string(classNames(i)), 'FontSize', 16,'fontweight','bold');
+end
+
+xlabel('First Principal Component');
+ylabel('Second Principal Component');
+xlim([-6 2.5]);
+ylim([-2 4]);
+title('Close-up of the PCA Projection of Groups onto 2D Plane');
+colorbar;
+colormap(distinct_colors);
+caxis([min_val, max_val]);
+ax = gca;
+% text(ax.Position(1) + ax.Position(3) + 2.5, ax.Position(2) + ax.Position(4) / 2, ...
+%      'Cells Width to Length Ratio', 'Rotation', 90, 'VerticalAlignment', 'middle');
+text(ax.Position(1) + ax.Position(3) + 2.5, ax.Position(2) + ax.Position(4) / 2, ...
+     'LaminB1 Total Area', 'Rotation', 90, 'VerticalAlignment', 'middle');
+grid on;
+hold off;
+
+
+legend(string(classNames), 'Location', 'best');
+    axis square;
+    box on
+g = gcf;
+g.WindowState = 'maximized';
+% exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_Closeup_ratio.png'), 'Resolution', 900)
+exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_Closeup_LaminB1.png'), 'Resolution', 900)
+
+%% PCA Groups Width2Length
+temp_Patient;
+new_feat = round(temp_Patient);
+patients;
+% array([  0.,  60.,  69.,  75.,  76.,  76.,  84.,  91.,  94.,  96., 100.,
+%        104., 106., 110. 13, 111., 111., 114., 115.17, 126., 126., 129., 131.,
+%        132., 141., 999.]) 0.992910311002455 is interpolation for matlab
+%        119
+map = [1, 0.9628962515657298, 0.8832500485011887, 0.9315501070412957, 1.0475624836070825, ...
+    0.9062262706482912, 0.9386139949131951, 0.9876259986191774, 1.001472534625067, 0.9328344061142667, ...
+    0.9464954566015233, 0.9367413159630704, 0.9382691582210567, 0.9748999561999504, 1.002165056468319, ...
+    0.9692848270579759, 0.992910311002455, 1.016535794946934, 0.9373562717737963, 1.0408265727672568 ...
+    1.272197713272603]'; % widthToLength
+% map = [1, 1.0806452120803148, 1.0739396305528609, 1.083671045294664, 0.9312406164134382, ...
+%     0.8751886409111126, 1.034898150435135, 1.1001504787102776, 1.1578667759821568, 1.160018265675352, ...
+%     0.8284036633274416, 1.1589048578799673, 0.7034004682316395, 0.70351551967129945, 1.111981913103297, ...
+%     1.2910475879181663, 1.4516386057056714, 1.5575123647002798, 1.6633861236948882, 1.7772495419577079, ...
+%     0.3475618917471596]'; % LaminB1
+% mapHGPS = 0.3475618917471596; % LaminB1
+uP = round(unique(temp_Patient));
+for tP=1:length(uP)
+    new_feat(round(temp_Patient) == uP(tP)) = map(tP);
+end
+% new_feat(new_feat < 0.4) = 1;
+% Create the colormap from light green to dark green
+num_colors = length(map) - 1; % Or some other appropriate number for granularity
+colormap_green = [linspace(0.8, 0, num_colors)' linspace(1, 0.5, num_colors)' linspace(0.8, 0, num_colors)'];
+% colormap_purple = [linspace(0.8, 0.4, num_colors)' linspace(0.8, 0, num_colors)' linspace(1, 0.5, num_colors)'];
 uF = unique(new_feat);
 min_val = min(uF(1:end));
 max_val = max(uF(1:end));
@@ -2934,7 +3243,7 @@ new_feat_normalized = (new_feat - min_val) / (max_val - min_val);
 % Map normalized new_feat values to the colormap
 color_indices = ceil(new_feat_normalized * (num_colors-1)) + 1;
 
-colormap_use = colormap_purple;
+colormap_use = colormap_green;
 
 colors_mapped = colormap_use(color_indices, :);
 
@@ -3004,10 +3313,10 @@ colormap(colormap_use);
 caxis([min_val, max_val]);
 % Add text next to the colorbar:
 ax = gca;
-% text(ax.Position(1) + ax.Position(3) + 8, ax.Position(2) + ax.Position(4) / 2, ...
-%      'Cells Width to Length Ratio', 'Rotation', 90, 'VerticalAlignment', 'middle');
 text(ax.Position(1) + ax.Position(3) + 8, ax.Position(2) + ax.Position(4) / 2, ...
-     'LaminB1 Total Area', 'Rotation', 90, 'VerticalAlignment', 'middle');
+     'Cells Width to Length Ratio', 'Rotation', 90, 'VerticalAlignment', 'middle');
+% text(ax.Position(1) + ax.Position(3) + 8, ax.Position(2) + ax.Position(4) / 2, ...
+     % 'LaminB1 Total Area', 'Rotation', 90, 'VerticalAlignment', 'middle');
 grid on;
 hold off;
 
@@ -3016,8 +3325,8 @@ legend(string(classNames), 'Location', 'northeast');
     box on
 g = gcf;
 g.WindowState = 'maximized';
-% exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_ratio.png'), 'Resolution', 900)
-exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_LaminB1.png'), 'Resolution', 900)
+exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_ratio.png'), 'Resolution', 900)
+% exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_LaminB1.png'), 'Resolution', 900)
 
 
 figure;
@@ -3066,10 +3375,10 @@ colorbar;
 colormap(colormap_use);
 caxis([min_val, max_val]);
 ax = gca;
-% text(ax.Position(1) + ax.Position(3) + 2.5, ax.Position(2) + ax.Position(4) / 2, ...
-%      'Cells Width to Length Ratio', 'Rotation', 90, 'VerticalAlignment', 'middle');
 text(ax.Position(1) + ax.Position(3) + 2.5, ax.Position(2) + ax.Position(4) / 2, ...
-     'LaminB1 Total Area', 'Rotation', 90, 'VerticalAlignment', 'middle');
+     'Cells Width to Length Ratio', 'Rotation', 90, 'VerticalAlignment', 'middle');
+% text(ax.Position(1) + ax.Position(3) + 2.5, ax.Position(2) + ax.Position(4) / 2, ...
+     % 'LaminB1 Total Area', 'Rotation', 90, 'VerticalAlignment', 'middle');
 grid on;
 hold off;
 
@@ -3079,10 +3388,10 @@ legend(string(classNames), 'Location', 'best');
     box on
 g = gcf;
 g.WindowState = 'maximized';
-% exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_Closeup_ratio.png'), 'Resolution', 900)
-exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_Closeup_LaminB1.png'), 'Resolution', 900)
+exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_Closeup_ratio.png'), 'Resolution', 900)
+% exportgraphics(g, strcat(folderCurrent, '\PCA2d_Groups_Closeup_LaminB1.png'), 'Resolution', 900)
 
-%% PCA Clusters
+%% PCA Clusters Width2Length
 
 clusterNames(1) = {'Cluster 1'};
 clusterNames(6) = {'Cluster 2'};
@@ -3131,6 +3440,19 @@ color_indices = ceil(new_feat_normalized * (num_colors-1)) + 1;
 colormap_use = colormap_blue;
 
 colors_mapped = colormap_use(color_indices, :);
+
+distinct_colors = [
+    [0.678, 0.847, 0.902]; % Light Blue
+    [0.498, 0.835, 0.498]; % Green
+    [1.0, 1.0, 0.6]; % Yellow
+    [1.0, 0.647, 0.0]; % Orange
+    [1.0, 0.0, 0.0]; % Red
+    [0.545, 0.0, 0.0]; % Dark Red
+    [0.580, 0.0, 0.827]; % Purple
+];
+color_indices = ceil(new_feat_normalized * (length(distinct_colors) - 1)) + 1; % Assign a color index
+color_indices(color_indices > length(distinct_colors)) = length(distinct_colors); % Ensure indices do not exceed color array length
+colors_mapped = distinct_colors(color_indices, :);
 
 
 features_T = z;
@@ -3192,7 +3514,7 @@ xlim([-35 5]);
 ylim([-15 20]);
 title('PCA Projection of Clusters onto 2D Plane');
 colorbar;
-colormap(colormap_use);
+colormap(distinct_colors);
 caxis([min_val, max_val]);
 % Add text next to the colorbar:
 ax = gca;
@@ -3247,7 +3569,7 @@ for i = num_clusters:-1:1
         'MarkerFaceAlpha', 0.75, 'MarkerEdgeAlpha', 0.75);
     else
     if i == 1 || i == 2
-        o = 0.35;
+        o = 0.75;
     else
         o = 0.75;
     end
@@ -3280,7 +3602,7 @@ xlim([-6 3.5]);
 ylim([-2 4]);
 title('Close-up of the PCA Projection of Clusters onto 2D Plane');
 colorbar;
-colormap(colormap_use);
+colormap(distinct_colors);
 caxis([min_val, max_val]);
 % ax = gca;
 text(ax.Position(1) + ax.Position(3) + 3.5, ax.Position(2) + ax.Position(4) / 2, ...
@@ -3313,6 +3635,250 @@ g = gcf;
 g.WindowState = 'maximized';
 exportgraphics(g, strcat(folderCurrent, '\PCA2d_Clsuters_Closeup_ratio_g.png'), 'Resolution', 900)
 % exportgraphics(g, strcat(folderCurrent, '\PCA2d_Clsuters_Closeup_LaminB1.png'), 'Resolution', 900)
+%% PCA Clusters LaminB1
+
+clusterNames(1) = {'Cluster 1'};
+clusterNames(6) = {'Cluster 2'};
+clusterNames(2) = {'Cluster 3'};
+clusterNames(3) = {'Cluster 4'};
+clusterNames(4) = {'Cluster 5'};
+clusterNames(5) = {'Cluster 6'};
+clusterNames(7) = {'Cluster 7'};
+
+temp_Patient;
+new_feat = round(temp_Patient);
+patients;
+% array([  0.,  60.,  69.,  75.,  76.,  76.,  84.,  91.,  94.,  96., 100.,
+%        104., 106., 110. 13, 111., 111., 114., 115.17, 126., 126., 129., 131.,
+%        132., 141., 999.]) 0.992910311002455 is interpolation for matlab
+%        119
+% map = [1, 0.9628962515657298, 0.8832500485011887, 0.9315501070412957, 1.0475624836070825, ...
+%     0.9062262706482912, 0.9386139949131951, 0.9876259986191774, 1.001472534625067, 0.9328344061142667, ...
+%     0.9464954566015233, 0.9367413159630704, 0.9382691582210567, 0.9748999561999504, 1.002165056468319, ...
+%     0.9692848270579759, 0.992910311002455, 1.016535794946934, 0.9373562717737963, 1.0408265727672568 ...
+%     1.272197713272603]'; % widthToLength
+map = [1, 1.0806452120803148, 1.0739396305528609, 1.083671045294664, 0.9312406164134382, ...
+    0.8751886409111126, 1.034898150435135, 1.1001504787102776, 1.1578667759821568, 1.160018265675352, ...
+    0.8284036633274416, 1.1589048578799673, 0.7034004682316395, 0.70351551967129945, 1.111981913103297, ...
+    1.2910475879181663, 1.4516386057056714, 1.5575123647002798, 1.6633861236948882, 1.7772495419577079, ...
+    0.3475618917471596]'; % LaminB1
+% mapHGPS = 0.3475618917471596; % LaminB1
+uP = round(unique(temp_Patient));
+for tP=1:length(uP)
+    new_feat(round(temp_Patient) == uP(tP)) = map(tP);
+end
+% new_feat(new_feat < 0.4) = 1;
+% Create the colormap from light green to dark green
+num_colors = length(map) - 1; % Or some other appropriate number for granularity
+colormap_green = [linspace(0.8, 0, num_colors)' linspace(1, 0.5, num_colors)' linspace(0.8, 0, num_colors)'];
+colormap_purple = [linspace(0.8, 0.4, num_colors)' linspace(0.8, 0, num_colors)' linspace(1, 0.5, num_colors)'];
+colormap_red = [linspace(1, 0.8, num_colors)' linspace(0.8, 0, num_colors)' linspace(0.8, 0, num_colors)'];
+colormap_blue = [linspace(0.8, 0, num_colors)' linspace(0.8, 0, num_colors)' linspace(1, 0.8, num_colors)'];
+uF = unique(new_feat);
+min_val = min(uF(1:end));
+max_val = max(uF(1:end));
+new_feat_normalized = (new_feat - min_val) / (max_val - min_val);
+% Map normalized new_feat values to the colormap
+color_indices = ceil(new_feat_normalized * (num_colors-1)) + 1;
+
+colormap_use = colormap_blue;
+
+colors_mapped = colormap_use(color_indices, :);
+
+distinct_colors = [
+    [0.678, 0.847, 0.902]; % Light Blue
+    [0.498, 0.835, 0.498]; % Green
+    [1.0, 1.0, 0.6]; % Yellow
+    [1.0, 0.647, 0.0]; % Orange
+    [1.0, 0.0, 0.0]; % Red
+    [0.545, 0.0, 0.0]; % Dark Red
+    [0.580, 0.0, 0.827]; % Purple
+];
+color_indices = ceil(new_feat_normalized * (length(distinct_colors) - 1)) + 1; % Assign a color index
+color_indices(color_indices > length(distinct_colors)) = length(distinct_colors); % Ensure indices do not exceed color array length
+colors_mapped = distinct_colors(color_indices, :);
+
+
+features_T = z;
+[coeff, score, latent, tsquared, explained, mu] = pca(features_T);
+reduced_data = features_T * coeff(:, 1:2);
+saved_var_flipped = flip(saved_var);
+num_clusters = length(saved_var_flipped);
+num_points = length(reduced_data);
+IDX = zeros(num_points, 1);
+markers = {'^', 'o', '>', 'd', 's', 'h', 'v', '<'};
+
+% Assign cluster numbers to the data points
+for i = 1:num_clusters
+    IDX(saved_var_flipped{i}) = i;
+end
+
+% Create the PCA plot
+figure;
+hold on;
+
+colors = lines(num_clusters); % Creates a color matrix for the clusters
+legend_entries = cell(1, num_clusters);
+for i = num_clusters:-1:1
+    cluster_points = reduced_data(IDX == i, :);
+    % Get the corresponding colors for this cluster
+    if i == num_clusters
+        cluster_colors = colors_mapped(IDX == i, :);
+            scatter(cluster_points(:, 1), cluster_points(:, 2), 25, cluster_colors, markers{i}, 'filled', ...
+        'MarkerFaceAlpha', 0.75, 'MarkerEdgeAlpha', 0.75);
+    else
+    o = 0.75;
+    cluster_colors = colors_mapped(IDX == i, :);
+        scatter(cluster_points(:, 1), cluster_points(:, 2), 25, cluster_colors, markers{i}, 'filled', ...
+        'MarkerFaceAlpha', o, 'MarkerEdgeAlpha', o);
+    end
+    
+end
+for i = 1:num_clusters
+    cluster_points = reduced_data(IDX == i, :);
+    mean_point = median(cluster_points, 1);
+    co = 'white';
+    if i == num_clusters
+        co = 'k';
+    end
+    s2 = scatter(mean_point(1), mean_point(2), 'filled', 'MarkerFaceColor', cell2mat(CMCell(i)), ...
+        'MarkerEdgeColor', co, 'LineWidth', 1.7, 'Marker', 'p', 'SizeData', 100);
+    text(mean_point(1)+0.05, mean_point(2), string(clusterNames(i)), 'FontSize', 12);
+end
+
+for i = 1:num_clusters
+    representative_color = colors_mapped(IDX == i, :);
+    representative_color = representative_color(1, :);
+    p(i) = scatter(NaN, NaN, 25, representative_color , markers{i}, 'filled');
+end
+
+xlabel('First Principal Component');
+ylabel('Second Principal Component');
+xlim([-35 5]);
+ylim([-15 20]);
+title('PCA Projection of Clusters onto 2D Plane');
+colorbar;
+colormap(distinct_colors);
+caxis([min_val, max_val]);
+% Add text next to the colorbar:
+ax = gca;
+% text(ax.Position(1) + ax.Position(3) + 8, ax.Position(2) + ax.Position(4) / 2, ...
+     % 'Cells Width to Length Ratio', 'Rotation', 90, 'VerticalAlignment', 'middle');
+text(ax.Position(1) + ax.Position(3) + 8, ax.Position(2) + ax.Position(4) / 2, ...
+     'LaminB1 Total Area', 'Rotation', 90, 'VerticalAlignment', 'middle');
+grid on;
+hold off;
+
+% Add a legend
+newClusterNames = cell(1, numel(clusterNames) * 2);
+newString = 'NewString';
+for i = 1:numel(clusterNames)
+    newClusterNames{2 * i - 1} = clusterNames{i};
+    
+    if i < numel(clusterNames)
+        newClusterNames{2 * i} = strcat("Center of ",clusterNames{i});
+    end
+end
+newClusterNames{end} = strcat("Center of ",clusterNames{end});
+newOrder = [1 6 2 3 4 5 7];
+p = p(newOrder);
+clusterNames = clusterNames(newOrder);
+
+lgd = legend(p, string(clusterNames), 'Location', 'bestoutside');
+lgd.FontSize = 16;
+    axis square;
+    box on
+g = gcf;
+g.WindowState = 'maximized';
+% exportgraphics(g, strcat(folderCurrent, '\PCA2d_Clusters_ratio_g.png'), 'Resolution', 900)
+exportgraphics(g, strcat(folderCurrent, '\PCA2d_Clusters_LaminB1.png'), 'Resolution', 900)
+
+clusterNames(1) = {'Cluster 1'};
+clusterNames(6) = {'Cluster 2'};
+clusterNames(2) = {'Cluster 3'};
+clusterNames(3) = {'Cluster 4'};
+clusterNames(4) = {'Cluster 5'};
+clusterNames(5) = {'Cluster 6'};
+clusterNames(7) = {'Cluster 7'};
+figure;
+hold on;
+
+colors = lines(num_clusters); % Creates a color matrix for the clusters
+legend_entries = cell(1, num_clusters);
+for i = num_clusters:-1:1
+    cluster_points = reduced_data(IDX == i, :);
+    if i == num_clusters
+        cluster_colors = colors_mapped(IDX == i, :);
+            scatter(cluster_points(:, 1), cluster_points(:, 2), 25, cluster_colors, markers{i}, 'filled', ...
+        'MarkerFaceAlpha', 0.75, 'MarkerEdgeAlpha', 0.75);
+    else
+    if i == 1 || i == 2
+        o = 0.75;
+    else
+        o = 0.75;
+    end
+    cluster_colors = colors_mapped(IDX == i, :);
+        scatter(cluster_points(:, 1), cluster_points(:, 2), 25, cluster_colors, markers{i}, 'filled', ...
+        'MarkerFaceAlpha', o, 'MarkerEdgeAlpha', o);
+    end
+
+
+end
+for i = 1:num_clusters
+    cluster_points = reduced_data(IDX == i, :);
+    mean_point = median(cluster_points, 1);
+    co = 'k';
+    if i == num_clusters
+        co = 'k';
+    end
+    s2 = scatter(mean_point(1), mean_point(2), 'filled', 'MarkerFaceColor', cell2mat(CMCell(i)), ...
+        'MarkerEdgeColor', co, 'LineWidth', 2.5, 'Marker', 'p', 'SizeData', 100);
+        text(mean_point(1)+0.05, mean_point(2), string(clusterNames(i)), 'FontSize', 30,'fontweight','bold');
+end
+for i = 1:num_clusters
+    representative_color = colors_mapped(IDX == i, :);
+    representative_color = representative_color(1, :);
+    p(i) = scatter(NaN, NaN, 25, representative_color , markers{i}, 'filled');
+end
+xlabel('First Principal Component');
+ylabel('Second Principal Component');
+xlim([-6 3.5]);
+ylim([-2 4]);
+title('Close-up of the PCA Projection of Clusters onto 2D Plane');
+colorbar;
+colormap(distinct_colors);
+caxis([min_val, max_val]);
+% ax = gca;
+% text(ax.Position(1) + ax.Position(3) + 3.5, ax.Position(2) + ax.Position(4) / 2, ...
+     % 'Cells Width to Length Ratio', 'Rotation', 90, 'VerticalAlignment', 'middle');
+ text(ax.Position(1) + ax.Position(3) + 3.5, ax.Position(2) + ax.Position(4) / 2, ...
+     'LaminB1 Total Area', 'Rotation', 90, 'VerticalAlignment', 'middle');
+grid on;
+hold off;
+
+% Add a legend
+newClusterNames = cell(1, numel(clusterNames) * 2);
+newString = 'NewString';
+for i = 1:numel(clusterNames)
+    newClusterNames{2 * i - 1} = clusterNames{i};
+    
+    if i < numel(clusterNames)
+        newClusterNames{2 * i} = strcat("Center of ",clusterNames{i});
+    end
+end
+newClusterNames{end} = strcat("Center of ",clusterNames{end});
+newOrder = [1 6 2 3 4 5 7];
+p = p(newOrder);
+clusterNames = clusterNames(newOrder);
+
+lgd = legend(p, string(clusterNames), 'Location', 'bestoutside');
+lgd.FontSize = 16;
+    axis square;
+    box on
+g = gcf;
+g.WindowState = 'maximized';
+% exportgraphics(g, strcat(folderCurrent, '\PCA2d_Clsuters_Closeup_ratio_g.png'), 'Resolution', 900)
+exportgraphics(g, strcat(folderCurrent, '\PCA2d_Clsuters_Closeup_LaminB1.png'), 'Resolution', 900)
 
 %% PCA Clsuters
 clusterNames(1) = {'Cluster 1'};

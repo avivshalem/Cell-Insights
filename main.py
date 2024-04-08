@@ -7,6 +7,7 @@ import tifffile as tiff
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+import fix_trajectories
 
 
 def main():
@@ -79,6 +80,7 @@ def main():
         if not trackingFolder:
             print('Tracking results save folder was not chosen and default path is selected')
             trackingFolder = r'C:\CellInsights\Tracking'
+        trackingFolderMain = trackingFolder
         if experimentName not in trackingFolder:
             trackingFolder = os.path.join(trackingFolder, experimentName)
             os.makedirs(trackingFolder, exist_ok=True)
@@ -122,8 +124,10 @@ def main():
 
     # Finished
     print(f'\nEntire Process Completed. Took {round((time.time() - allTime)/60, 2)} minutes to process {len(filenames)} experiments\n')
+    return trackingFolderMain
 
 
 if __name__ == "__main__":
 
-    main()
+    TrackingFolder = main()
+    fix_trajectories.main(TrackingFolder)
